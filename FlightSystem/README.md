@@ -242,9 +242,7 @@ If RabbitMQ is not available, the system falls back to in-memory processing (for
 All endpoints are versioned (`/api/v1/`) and accessible through the API Gateway at `http://localhost:5000`.
 
 ## 🎯 Features Implemented
-
 ### ✅ Functional Requirements
-
 - [x] **Add Flights**: Admin can add flights with ML price prediction
 - [x] **Search Flights**: Search by airport, dates, passengers with filters
 - [x] **Direct Flight Filter**: Filter for direct flights only
@@ -263,7 +261,6 @@ All endpoints are versioned (`/api/v1/`) and accessible through the API Gateway 
   - Miles added notifications
 
 ### ✅ Non-Functional Requirements
-
 - [x] **Microservices Architecture**: Separate services for each domain
 - [x] **API Gateway**: Single entry point for all services
 - [x] **Authentication**: AWS Cognito integration
@@ -276,9 +273,7 @@ All endpoints are versioned (`/api/v1/`) and accessible through the API Gateway 
 - [x] **Database**: PostgreSQL with proper schema
 
 ## 📊 Data Models
-
 ### ER Diagram
-
 ```
 ┌─────────────┐         ┌──────────────┐
 │   Flight    │◄────────│   Booking    │
@@ -294,53 +289,19 @@ All endpoints are versioned (`/api/v1/`) and accessible through the API Gateway 
                               │
                               │
 ┌─────────────┐         ┌──────▼───────────┐
-│   Member    │◄────────│ MilesTransaction│
-│             │         │                 │
-│ - id        │         │ - id            │
-│ - memberNum │         │ - memberId      │
-│ - cognitoId │         │ - bookingId    │
-│ - firstName │         │ - miles         │
-│ - lastName  │         │ - type          │
-│ - email     │         └─────────────────┘
+│   Member    │◄────────│ MilesTransaction │
+│             │         │                  │
+│ - id        │         │ - id             │
+│ - memberNum │         │ - memberId       │
+│ - cognitoId │         │ - bookingId      │
+│ - firstName │         │ - miles          │
+│ - lastName  │         │ - type           │
+│ - email     │         └─────────────────-┘
 │ - milesPoints│
 └─────────────┘
 ```
 
-## 🐳 Deployment
-
-### Cloud Deployment (Bonus)
-
-The system is designed for cloud deployment on:
-
-- **AWS**: App Runner, RDS, ElastiCache, SQS, EventBridge
-- **Azure**: App Services, SQL Database, Redis Cache, Service Bus, Logic Apps
-- **GCP**: Cloud Run, Cloud SQL, Memorystore, Cloud Tasks, Cloud Scheduler
-
-### Deployment Steps
-
-1. **Database**: Deploy PostgreSQL (RDS/Azure SQL/Cloud SQL)
-2. **Cache**: Deploy Redis (ElastiCache/Azure Cache/Memorystore)
-3. **Queue**: Deploy RabbitMQ or use cloud queue service
-4. **Services**: Deploy each service as a container or serverless function
-5. **API Gateway**: Deploy gateway service or use AWS API Gateway
-6. **Frontend**: Deploy React app to S3/Blob Storage with CDN
-7. **Scheduler**: Use cloud scheduler (EventBridge/Logic Apps/Cloud Scheduler)
-
-## 🧪 Testing
-
-```bash
-# Test API Gateway
-curl http://localhost:5000/health
-
-# Test Flight Search
-curl "http://localhost:5000/flight-api/api/v1/Flight/search?from=Istanbul&to=Ankara&date=2025-12-31&passengers=1"
-
-# Test Member Profile (requires auth token)
-curl -H "Authorization: Bearer <token>" http://localhost:5000/member-api/api/v1/Member/profile
-```
-
 ## 📝 Assumptions
-
 1. **Price Calculation**: 1 mile = 1 TL for simplicity
 2. **Miles Earning**: Miles are added based on ticket price (1:1 ratio)
 3. **Flight Completion**: Flights are considered completed 1 day after flight date
@@ -348,31 +309,5 @@ curl -H "Authorization: Bearer <token>" http://localhost:5000/member-api/api/v1/
 5. **Email Service**: Gmail SMTP (can be replaced with SendGrid, SES, etc.)
 6. **Queue Fallback**: In-memory queue if RabbitMQ unavailable (development only)
 
-## 🐛 Known Issues & Limitations
-
-1. Round trip booking not fully implemented (UI exists, backend needs enhancement)
-2. ML service uses simple heuristics (should be replaced with trained model)
-3. No payment gateway integration (as per requirements)
-4. Email service requires manual Gmail app password setup
-
-## 📚 Documentation
-
-- API documentation: See endpoint descriptions above
-- Database schema: `backend/scripts/migrations.sql`
-- Environment variables: `backend/.env.example`
-
 ## 🎥 Video Presentation
-
 [Link to video presentation - max 5 minutes]
-
-## 👥 Team
-
-Group 1: Airline Ticketing System
-
-## 📄 License
-
-This project is created for educational purposes as part of SE 4458 Software Architecture & Design course.
-
----
-
-**Note**: This is a complete implementation of the flight service requirements. All functional and non-functional requirements from the assignment have been addressed.
