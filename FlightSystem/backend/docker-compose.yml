@@ -1,0 +1,172 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: flight_system
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/migrations.sql:/docker-entrypoint-initdb.d/migrations.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  flight-service:
+    build: .
+    command: node services/flight-service/index.js
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=flight_system
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  member-service:
+    build: .
+    command: node services/member-service/index.js
+    ports:
+      - "3002:3002"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=flight_system
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  booking-service:
+    build: .
+    command: node services/booking-service/index.js
+    ports:
+      - "3003:3003"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=flight_system
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  admin-service:
+    build: .
+    command: node services/admin-service/index.js
+    ports:
+      - "3004:3004"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=flight_system
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - ML_SERVICE_URL=http://ml-service:3006
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notification-service:
+    build: .
+    command: node services/notification-service/index.js
+    ports:
+      - "3005:3005"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  ml-service:
+    build: .
+    command: node services/ml-service/index.js
+    ports:
+      - "3006:3006"
+
+  scheduler:
+    build: .
+    command: node services/scheduler/index.js
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=flight_system
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  api-gateway:
+    build: .
+    command: node services/api-gateway/index.js
+    ports:
+      - "5000:5000"
+    environment:
+      - FLIGHT_SERVICE_PORT=3001
+      - MEMBER_SERVICE_PORT=3002
+      - BOOKING_SERVICE_PORT=3003
+      - ADMIN_SERVICE_PORT=3004
+      - NOTIFICATION_SERVICE_PORT=3005
+    depends_on:
+      - flight-service
+      - member-service
+      - booking-service
+      - admin-service
+      - notification-service
+
+volumes:
+  postgres_data:
