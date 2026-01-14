@@ -223,4 +223,4 @@ All endpoints are versioned (`/api/v1/`) and accessible through the API Gateway 
 6. **Queue Fallback**: In-memory queue if RabbitMQ unavailable (development only)
 
 ## 🎥 Video Presentation
-[Link to video presentation - max 5 minutes]
+[https://drive.google.com/file/d/11q3QEVRsJBwEOCU7EHHgWJsD_oqoUb3r/view?usp=sharing]
