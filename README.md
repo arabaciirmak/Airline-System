@@ -223,4 +223,8 @@ All endpoints are versioned (`/api/v1/`) and accessible through the API Gateway 
 6. **Queue Fallback**: In-memory queue if RabbitMQ unavailable (development only)
 
 ## 🎥 Video Presentation
-[Click here to view the video](https://drive.google.com/file/d/11q3QEVRsJBwEOCU7EHHgWJsD_oqoUb3r/view?usp=sharing)
+**[Click here to view the video](https://drive.google.com/file/d/11q3QEVRsJBwEOCU7EHHgWJsD_oqoUb3r/view?usp=sharing)**
+
+## 🌐 Live Demo
+You can access the live version of the application here:  
+**[Airline System Live Demo](airline-system-irmak-e7ggaydnh9h5bseq.germanywestcentral-01.azurewebsites.net)**
